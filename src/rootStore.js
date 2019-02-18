@@ -1,45 +1,88 @@
 import { types } from 'mobx-state-tree'
 
-const Topping = types.model({
+const Topping = types.model('Topping', {
   name: types.string,
   price: types.number,
   defaultSelected: types.boolean,
 })
 
 const Pizza = types
-  .model({
-    size: types.string,
-    maxToppings: types.maybeNull(types.number),
-    toppings: types.array(Topping),
-    basePrice: types.number,
+  .model('Pizza', {
+    size: types.optional(types.string, ''),
+    maxToppings: types.optional(types.maybeNull(types.number), 0),
+    toppings: types.map(Topping),
+    basePrice: types.optional(types.number, 0),
   })
   .views(self => ({
+    isToppingDisabled(name) {
+      return self.hasMaxToppings && !self.toppings.has(name)
+    },
+    get hasMaxToppings() {
+      return self.toppings.size >= self.maxToppings && self.maxToppings !== null
+    },
     get totalPrice() {
-      console.log(self.basePrice)
-      return self.basePrice + self.toppings.reduce((acc, t) => acc + t.price, 0)
+      return Array.from(self.toppings.values()).reduce((acc, t) => acc + t.price, self.basePrice)
     },
   }))
   .actions(self => ({
     setPizza(pizza) {
-      console.log('setting pizza', pizza)
       self.size = pizza.name
       self.maxToppings = pizza.maxToppings
       self.basePrice = pizza.basePrice
+      // set default toppings
+      self.toppings.clear()
+      pizza.toppings
+        .filter(t => t.defaultSelected)
+        .map(t => ({
+          name: t.topping.name,
+          price: t.topping.price,
+          defaultSelected: t.defaultSelected,
+        }))
+        .forEach(element => {
+          self.addTopping(element)
+        })
     },
     addTopping(topping) {
-      console.log('adding topping', topping)
-      self.toppings.push(topping)
+      self.toppings.set(topping.name, topping)
     },
-    removeToppings(topping) {
-      // Implement this
-      self.toppings.push(topping)
+    removeTopping(topping) {
+      self.toppings.delete(topping.name)
     },
     setBasePrice(basePrice) {
       self.basePrice = basePrice
     },
   }))
 
-export const RootStore = types.model({
-  pizzaForm: Pizza,
-  cart: types.array(Pizza),
-})
+const Cart = types
+  .model('Cart', { cart: types.array(Pizza) })
+  .views(self => ({
+    get isEmpty() {
+      return self.cart.length === 0
+    },
+    get total() {
+      return self.cart.reduce((acc, pizzaOrder) => acc + pizzaOrder.totalPrice, 0)
+    },
+  }))
+  .actions(self => ({
+    clear() {
+      self.cart = []
+    },
+  }))
+
+export const RootStore = types
+  .model('RootStore', {
+    cartStore: Cart,
+    pizzaForm: Pizza,
+  })
+  .actions(self => ({
+    addToCart() {
+      self.cartStore.cart.push(self.pizzaForm.toJSON())
+    },
+    removerItemFromCart(index) {
+      self.cartStore.cart.splice(index, 1)
+    },
+    checkout() {
+      window.alert('Your order is being delivered.')
+      self.cartStore.clear()
+    },
+  }))

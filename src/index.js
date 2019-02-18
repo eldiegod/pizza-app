@@ -15,6 +15,7 @@ const initialSnapshot = {
     maxToppings: 0,
     basePrice: 0,
   },
+  cartStore: { cart: [] },
 }
 const storeInstance = RootStore.create(initialSnapshot)
 // logs every state update for debugging
@@ -39,7 +40,7 @@ const render = Component => {
 
 render(App)
 
-// Hot reloading
+// Component Hot reloading
 if (module.hot) {
   module.hot.accept('./components/App', () => {
     const NextApp = require('./components/App').default
