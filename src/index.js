@@ -18,7 +18,7 @@ const initialSnapshot = {
   cartStore: { cart: [] },
 }
 const storeInstance = RootStore.create(initialSnapshot)
-// logs every state update for debugging.
+// logs every state update for debug
 onSnapshot(storeInstance, newSnapshot => {
   console.dir(newSnapshot)
 })
