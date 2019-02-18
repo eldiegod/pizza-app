@@ -25,6 +25,9 @@ onSnapshot(storeInstance, newSnapshot => {
 
 const client = new ApolloClient({
   uri: 'https://core-graphql.dev.waldo.photos/pizza',
+  fetchOptions: {
+    mode: 'no-cors',
+  },
 })
 
 const render = Component => {
