@@ -1,11 +1,26 @@
-import React, { Suspense } from 'react'
+import React from 'react'
 import ReactDOM from 'react-dom'
-
+import { onSnapshot } from 'mobx-state-tree'
 import ApolloClient from 'apollo-boost'
 import { ApolloProvider } from 'react-apollo-hooks'
 
-import Fallback from './components/Fallback'
 import App from './components/App'
+
+import { Provider } from './hooks/storeHook'
+import { RootStore } from './rootStore'
+
+const initialSnapshot = {
+  pizzaForm: {
+    size: '',
+    maxToppings: 0,
+    basePrice: 0,
+  },
+}
+const storeInstance = RootStore.create(initialSnapshot)
+// logs every state update for debugging
+onSnapshot(storeInstance, newSnapshot => {
+  console.dir(newSnapshot)
+})
 
 const client = new ApolloClient({
   uri: 'https://core-graphql.dev.waldo.photos/pizza',
@@ -13,11 +28,11 @@ const client = new ApolloClient({
 
 const render = Component => {
   return ReactDOM.render(
-    <Suspense fallback={<Fallback />}>
+    <Provider store={storeInstance}>
       <ApolloProvider client={client}>
         <Component />
       </ApolloProvider>
-    </Suspense>,
+    </Provider>,
     document.getElementById('root'),
   )
 }
