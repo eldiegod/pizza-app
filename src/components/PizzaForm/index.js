@@ -27,14 +27,16 @@ const PizzaForm = observer(() => {
   const { data, error, loading } = useQuery(GET_PIZZAS)
   const store = useStore()
   const [pizzaSizeIndex, setPizzaSizeIndex] = useState()
-  if (loading) return <Fallback />
-  if (error) return 'Something went wrong while loading the pizzas, please refresh the page.'
+
   const setPizza = e => {
     const index = data.pizzaSizes.findIndex(p => p.name === e.target.value)
     setPizzaSizeIndex(index)
     const pizza = data.pizzaSizes[index]
     store.pizzaForm.setPizza(pizza)
   }
+  if (loading) return <Fallback />
+  if (error) return 'Something went wrong while loading the pizzas, please refresh the page.'
+  console.log(data)
   return (
     <div>
       <h2>Make your own pizza!</h2>

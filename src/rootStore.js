@@ -1,9 +1,10 @@
 import { types } from 'mobx-state-tree'
+import { onSnapshot } from 'mobx-state-tree'
 
 const Topping = types.model('Topping', {
   name: types.string,
   price: types.number,
-  defaultSelected: types.boolean,
+  defaultSelected: types.boolean
 })
 
 const Pizza = types
@@ -11,7 +12,7 @@ const Pizza = types
     size: types.optional(types.string, ''),
     maxToppings: types.optional(types.maybeNull(types.number), 0),
     toppings: types.map(Topping),
-    basePrice: types.optional(types.number, 0),
+    basePrice: types.optional(types.number, 0)
   })
   .views(self => ({
     isToppingDisabled(name) {
@@ -22,7 +23,7 @@ const Pizza = types
     },
     get totalPrice() {
       return Array.from(self.toppings.values()).reduce((acc, t) => acc + t.price, self.basePrice)
-    },
+    }
   }))
   .actions(self => ({
     setPizza(pizza) {
@@ -36,7 +37,7 @@ const Pizza = types
         .map(t => ({
           name: t.topping.name,
           price: t.topping.price,
-          defaultSelected: t.defaultSelected,
+          defaultSelected: t.defaultSelected
         }))
         .forEach(element => {
           self.addTopping(element)
@@ -50,7 +51,7 @@ const Pizza = types
     },
     setBasePrice(basePrice) {
       self.basePrice = basePrice
-    },
+    }
   }))
 
 const Cart = types
@@ -61,18 +62,18 @@ const Cart = types
     },
     get total() {
       return self.cart.reduce((acc, pizzaOrder) => acc + pizzaOrder.totalPrice, 0)
-    },
+    }
   }))
   .actions(self => ({
     clear() {
       self.cart = []
-    },
+    }
   }))
 
 export const RootStore = types
   .model('RootStore', {
     cartStore: Cart,
-    pizzaForm: Pizza,
+    pizzaForm: Pizza
   })
   .actions(self => ({
     addToCart() {
@@ -84,5 +85,21 @@ export const RootStore = types
     checkout() {
       window.alert('Your order is being delivered.')
       self.cartStore.clear()
-    },
+    }
   }))
+
+const initialSnapshot = {
+  pizzaForm: {
+    size: '',
+    maxToppings: 0,
+    basePrice: 0
+  },
+  cartStore: { cart: [] }
+}
+const storeInstance = RootStore.create(initialSnapshot)
+// logs every state update for debug
+onSnapshot(storeInstance, newSnapshot => {
+  console.dir(newSnapshot)
+})
+
+export default storeInstance

@@ -4,11 +4,12 @@ import { useStore } from '../../hooks/storeHook'
 const Toppings = ({ toppings }) => {
   const store = useStore()
   const [isPinnapleToppingDisabled, setIsPinnapleToppingDisabled] = useState(false)
+
   const toggleTopping = _topping => e => {
     const topping = {
       name: _topping.topping.name,
       price: _topping.topping.price,
-      defaultSelected: _topping.defaultSelected,
+      defaultSelected: _topping.defaultSelected
     }
     if (e.target.checked) {
       store.pizzaForm.addTopping(topping)
@@ -48,7 +49,7 @@ const Toppings = ({ toppings }) => {
           />
           <span
             style={{
-              textDecoration: store.pizzaForm.isToppingDisabled(t.topping.name) ? 'line-through' : 'none',
+              textDecoration: store.pizzaForm.isToppingDisabled(t.topping.name) ? 'line-through' : 'none'
             }}
           >{`${t.topping.name} +${t.topping.price}$`}</span>
         </div>
