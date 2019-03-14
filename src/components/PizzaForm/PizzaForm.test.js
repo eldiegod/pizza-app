@@ -14,16 +14,16 @@ const client = new ApolloClient({
 })
 
 describe('Testing PizzaForm Component', () => {
-  const { container, debug } = render(
+  const { container, debug, getByText } = render(
     <Provider store={storeInstance}>
       <ApolloProvider client={client}>
         <PizzaForm />
       </ApolloProvider>
     </Provider>
   )
-  it('should render toppings when a pizza size is selected', () => {
-    debug(container)
+  it('should render fallback component while the pizzas are loading', () => {
+    // debug(container)
+    getByText(/heating ovens/i)
   })
-  it('should render toppings when a pizza size is selected', () => {})
+  // it('should render toppings when a pizza size is selected', () => {})
 })
-x
